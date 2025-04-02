@@ -1,0 +1,7 @@
+{
+  "name": "esri-fabanc-repo",
+  "type": "exb-web-extension-repo",
+  "description": "This is a repository of demo widgets created by Fabien Ancelin.",
+  "copyright": "",
+  "license": "http://www.apache.org/licenses/LICENSE-2.0"
+}
