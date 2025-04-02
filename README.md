@@ -1,1 +1,1 @@
-# arcgis-experience-builder-custom-wiidgets
+# arcgis-experience-builder-custom-widgets
