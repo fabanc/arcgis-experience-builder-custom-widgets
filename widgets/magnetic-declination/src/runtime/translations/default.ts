@@ -4,6 +4,10 @@ export default {
     mouseMoveTips: 'Move the cursor to get the magnetic declination',
     enableClickTips: 'Enable clicking the map to get the magnetic declination',
     disableClickTips: 'Disable clicking the map to get the magnetic declination',
-    computing: 'Computing...'
+    computing: 'Computing...',
+    magneticDeclination: 'Magnetic declination',
+    latitude: 'Latitude',
+    longitude: 'Longitude',
+    horizontalIntensity: 'Horizontal intensity',
   }
   

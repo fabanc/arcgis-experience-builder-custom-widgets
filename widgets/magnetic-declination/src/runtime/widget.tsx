@@ -53,6 +53,10 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
   const enableClickTips = translate('enableClickTips')
   const disableClickTips = translate('disableClickTips')
   const computing = translate('computing')
+  const latitudeLabel = translate('latitude')
+  const longitudeLabel = translate('longitude')
+  const horizontalIntensityLabel = translate('horizontalIntensity')
+  const magneticDeclinationLabel = translate('magneticDeclination')
 
 
   const locateBtnTips = locateActive ? disableClickTips : enableClickTips
@@ -249,10 +253,10 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
       )}
 
 
-        <CopyRow label="Latitude" copyableText={latitude}></CopyRow>
-        <CopyRow label="Longitude" copyableText={longitude}></CopyRow>
-        <CopyRow label="Magnetic Declination" copyableText={declination}></CopyRow>
-        <CopyRow label="Horizontal Intensity" copyableText={horizontalIntensity}></CopyRow>
+        <CopyRow label={latitudeLabel} copyableText={latitude}></CopyRow>
+        <CopyRow label={longitudeLabel} copyableText={longitude}></CopyRow>
+        <CopyRow label={magneticDeclinationLabel} copyableText={declination}></CopyRow>
+        <CopyRow label={horizontalIntensityLabel} copyableText={horizontalIntensity}></CopyRow>
     </div>
   )
 
