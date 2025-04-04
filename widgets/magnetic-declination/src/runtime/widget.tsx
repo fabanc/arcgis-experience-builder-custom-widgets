@@ -17,6 +17,7 @@ import PictureMarkerSymbol from 'esri/symbols/PictureMarkerSymbol'
 
 import defaultMessages from './translations/default'
 import { LocatorOutlined } from 'jimu-icons/outlined/editor/locator'
+import CopyRow from './components/copy-row'
 
 
 
@@ -224,7 +225,7 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
   let tip = locateActive ? mapClickTips : mouseMoveTips
 
   return (
-    <div className='jimu-widget-coordinates jimu-widget h-100'>
+    <div className='jimu-widget-coordinates jimu-widget h-100' >
     <div className="coordinates-widget-container m-2 d-flex justify-content-between surface-1">
       <Button
         icon
@@ -247,10 +248,11 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
         <JimuMapViewComponent useMapWidgetId={props.useMapWidgetIds?.[0]} onActiveViewChange={activeViewChangeHandler} />
       )}
 
-        <p> Latitude: {latitude}</p>
-        <p> Longitude: {longitude}</p>
-        <p> Magnetic Declination: {declination} </p>
-        <p> Horizontal Intensity: {horizontalIntensity} </p>
+
+        <CopyRow label="Latitude" copyableText={latitude}></CopyRow>
+        <CopyRow label="Longitude" copyableText={longitude}></CopyRow>
+        <CopyRow label="Magnetic Declination" copyableText={declination}></CopyRow>
+        <CopyRow label="Horizontal Intensity" copyableText={horizontalIntensity}></CopyRow>
     </div>
   )
 
