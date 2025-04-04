@@ -221,9 +221,11 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
     })
   }
 
+  let tip = locateActive ? mapClickTips : mouseMoveTips
+
   return (
-    
-    <div className="widget-demo jimu-widget m-2">
+    <div className='jimu-widget-coordinates jimu-widget h-100'>
+    <div className="coordinates-widget-container m-2 d-flex justify-content-between surface-1">
       <Button
         icon
         size='sm'
@@ -237,11 +239,16 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
       >
         <LocatorOutlined />
       </Button>
+      <div className='coordinates-info text-truncate' title={tip}>
+            {tip}
+      </div>
+    </div>
       {props.useMapWidgetIds && props.useMapWidgetIds.length === 1 && (
         <JimuMapViewComponent useMapWidgetId={props.useMapWidgetIds?.[0]} onActiveViewChange={activeViewChangeHandler} />
       )}
 
-        <p> Lat/Lon: {latitude} {longitude} </p>
+        <p> Latitude: {latitude}</p>
+        <p> Longitude: {longitude}</p>
         <p> Magnetic Declination: {declination} </p>
         <p> Horizontal Intensity: {horizontalIntensity} </p>
     </div>
