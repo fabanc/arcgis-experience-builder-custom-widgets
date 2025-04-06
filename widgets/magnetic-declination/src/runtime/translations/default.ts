@@ -1,5 +1,5 @@
 export default {
-    _widgetLabel: 'Coordinates',
+    _widgetLabel: 'Magnetic Declination',
     mapClickTips: 'Click the map to get the magnetic declination',
     mouseMoveTips: 'Move the cursor to get the magnetic declination',
     enableClickTips: 'Enable clicking the map to get the magnetic declination',

@@ -1,4 +1,4 @@
-import { React, hooks, type AllWidgetProps, getAppStore, appActions } from 'jimu-core'
+import { React, hooks, type AllWidgetProps, getAppStore, appActions, i18n } from 'jimu-core'
 import type { IMConfig } from '../config'
 import { JimuMapViewComponent, type JimuMapView } from 'jimu-arcgis'
 import {Button, defaultMessages as jimuDefaultMessages} from 'jimu-ui'
@@ -25,6 +25,7 @@ const { useState, useRef, useEffect } = React
 
 
 const Widget = (props: AllWidgetProps<IMConfig>) => {
+  const { coordinateDecimal, magneticDeclinationDecimal, horizontalIntensityDecimal, showSeparators} = props.config
 
   const useMapWidgetId = props.useMapWidgetIds?.[0]
 
@@ -205,13 +206,44 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
       sethorizontalIntensity(null)
     }
     else{ 
-      setLatitude(point.latitude.toFixed(3))
-      setLongitude(point.longitude.toFixed(3))
+      setLatitude(
+        localizeNumberBySettingInfo(
+          point.latitude, 
+          {places: coordinateDecimal, digitSeparator: showSeparators}
+        )
+      )
+      setLongitude(
+        localizeNumberBySettingInfo(
+          point.longitude, 
+          {places: coordinateDecimal, digitSeparator: showSeparators}
+        )
+      )
+
       var myGeoMag2020 = geomag.field(point.latitude, point.longitude);
-      setDeclination(myGeoMag2020.declination.toFixed(3))
-      sethorizontalIntensity(myGeoMag2020.horizontalIntensity.toFixed(3))
+      setDeclination(
+        localizeNumberBySettingInfo(
+          myGeoMag2020.declination, 
+          {places: magneticDeclinationDecimal, digitSeparator: showSeparators}
+        )
+      )
+      sethorizontalIntensity(
+        localizeNumberBySettingInfo(
+          myGeoMag2020.horizontalIntensity, 
+          {places: horizontalIntensityDecimal, digitSeparator: showSeparators}
+        )
+      )
+
     }
   }
+
+  const localizeNumberBySettingInfo = (num: number, settingInfo) => {
+    const { places, digitSeparator } = settingInfo
+    if (digitSeparator) {
+      return i18n.getIntl().formatNumber(num, { maximumFractionDigits: places, minimumFractionDigits: places, useGrouping: true })
+    } else {
+      return i18n.getIntl().formatNumber(num, { maximumFractionDigits: places, minimumFractionDigits: places, useGrouping: false })
+    }
+  }  
 
   const getMarkerGraphic = (mapPoint) => {
     const symbol = new PictureMarkerSymbol({

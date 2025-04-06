@@ -1,7 +1,11 @@
 import type { ImmutableObject } from 'seamless-immutable'
 
+
 export interface Config {
-  exampleConfigProperty: string
+  coordinateDecimal: number
+  magneticDeclinationDecimal: number
+  horizontalIntensityDecimal: number
+  showSeparators: boolean
 }
 
 export type IMConfig = ImmutableObject<Config>
