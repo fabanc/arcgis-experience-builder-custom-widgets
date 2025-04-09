@@ -16,6 +16,7 @@ Each piece of information can be copied using the copy button on the left of eac
 
 ![alt text](image.png)
 
+[Live demo] (https://mcedelinationapp.z27.web.core.windows.net/)
 
 # Future to-do
 
