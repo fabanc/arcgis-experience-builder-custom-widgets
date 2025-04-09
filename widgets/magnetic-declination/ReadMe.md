@@ -12,6 +12,10 @@ The world magnetic field varies every month. This widget also displays the predi
 * Display the magnetic declination for  a specific date. By default, the current date will be used.
 * Display the magnetic declination either based on the current mouse location, or a marker on the map.
 
+Each piece of information can be copied using the copy button on the left of each field.
+
+![alt text](image.png)
+
 
 # Future to-do
 
