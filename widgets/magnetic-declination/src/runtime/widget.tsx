@@ -2,9 +2,10 @@ import { React, hooks, type AllWidgetProps, getAppStore, appActions, i18n } from
 import type { IMConfig } from '../config'
 import { JimuMapViewComponent, type JimuMapView } from 'jimu-arcgis'
 import {Button, defaultMessages as jimuDefaultMessages} from 'jimu-ui'
+import { DatePicker } from 'jimu-ui/basic/date-picker'    
 
 // This party library that calculates the magnetic declination.
-import * as geomag from './lib/geomag.min.js';
+import * as geomag from 'geomagnetism'
 
 // Used to get points coordinates
 import Point from 'esri/geometry/Point'
@@ -19,7 +20,7 @@ import defaultMessages from './translations/default'
 import { LocatorOutlined } from 'jimu-icons/outlined/editor/locator'
 import CopyRow from './components/copy-row'
 import LabelRow from './components/label-row'
-
+import { getMagneticNorth } from './components/magnetic-north'
 
 
 const { useState, useRef, useEffect } = React
@@ -36,6 +37,7 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
   const [horizontalIntensity, sethorizontalIntensity] = useState<string>('')
   const [currentJimuMapView, setCurrentJimuMapView] = useState(null)
   const [showMagneticNorth, setShowMagneticNorth] = useState(false)
+  const [declinationDate, setDeclinationDate] = useState(new Date(Date.now()))
 
   // Locate is true if the user is getting the magnetic declination by clicking the map.
   // Locate is false if the user is getting the magnetic declination by moving the mouse over the map.
@@ -57,7 +59,6 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
   const mouseMoveTips = translate('mouseMoveTips')
   const enableClickTips = translate('enableClickTips')
   const disableClickTips = translate('disableClickTips')
-  const computing = translate('computing')
   const latitudeLabel = translate('latitude')
   const longitudeLabel = translate('longitude')
   const horizontalIntensityLabel = translate('horizontalIntensity')
@@ -66,19 +67,12 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
 
 
   const locateBtnTips = locateActive ? disableClickTips : enableClickTips
-
-  useEffect(() => {
-    console.log(showMagneticNorth)
-    onShowMagneticNorth ()
-  },[showMagneticNorth])
-
+  
   useEffect(() => {
     graphicsLayer.current = new GraphicsLayer({ listMode: 'hide' })
     markerGraphic.current = null
     const map = currentJimuMapView?.view?.map
     map?.add(graphicsLayer.current)
-    // change status when view switch
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentJimuMapView])
 
 
@@ -102,9 +96,11 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
    hooks.useUpdateEffect(() => {
      const view = currentJimuMapView?.view
      const viewTypeIsThree = view?.type === '3d'
-     displayOnClient(null)
+     onShowMagneticNorth()
+     
   
      if (locateActive == false) {
+      displayOnClient(null)
       console.log('Listening to mouse moves')
        clickListener.current?.remove()
        moveListener.current?.remove()
@@ -113,7 +109,7 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
          displayOnClient(point)
        })
      } else {
-
+      displayOnClient(markerGraphic.current?.geometry)
       clickListener.current?.remove()
       moveListener.current?.remove()
       clickListener.current = view?.on('click', (event) => {
@@ -121,7 +117,7 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
         onMapClick(event, viewTypeIsThree ? threeDPoint : undefined)
       })
      }
-   }, [currentJimuMapView, locateActive, enableRealtime]) 
+   }, [currentJimuMapView, locateActive, enableRealtime, declinationDate, showMagneticNorth]) 
 
 
 
@@ -140,11 +136,6 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
         displayOnClient(point)
       })
 
-      
-      // clickListener.current = jmv.view?.on('click', (event) => {
-      //   const threeDPoint = { x: event?.native?.pageX, y: event?.native?.pageY }
-      //   onMapClick(event, viewTypeIsThree ? threeDPoint : undefined)
-      // })
     }
   }
 
@@ -152,14 +143,16 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
     setShowMagneticNorth(evt.target.checked)
   }
 
-  const removeLayerAndMarker = () => {
-    if (markerGraphic.current) {
-      graphicsLayer.current?.remove(markerGraphic.current)
+  const onDateChange = (value:number, label:string) => {
+    const newDate = new Date(value)
+    const year = newDate.getFullYear()
+
+    if (year < 2025 || year > 2029) {
+      displayOnClient(null)
+      alert('Year out of range. Only 2025 to 2029 are supported.')
+      return
     }
-    if (graphicsLayer.current) {
-      const orgMap = currentJimuMapView?.view?.map
-      orgMap?.remove(graphicsLayer.current)
-    }
+    setDeclinationDate(new Date(value))
   }
 
   const onLocateClick = async () => {
@@ -220,11 +213,21 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
     }
     else{
       const map = currentJimuMapView?.view?.map
-      magneticNorthLayer.current = new GraphicsLayer({ listMode: 'hide' })
-      map.add(magneticNorthLayer.current)
+
+      if (magneticNorthLayer.current == null){
+        magneticNorthLayer.current = new GraphicsLayer({ listMode: 'hide' })
+        map.add(magneticNorthLayer.current)
+      }
+
+      if (magneticNorthMarker.current != null){
+        magneticNorthLayer.current.remove(magneticNorthMarker.current)
+      }
+
+      const magneticNorthCoords = getMagneticNorth(declinationDate)
+      console.log(magneticNorthCoords)
       const point = new Point({
-        longitude: 139.384,
-        latitude: 85.772
+        longitude: magneticNorthCoords.longitude,
+        latitude: magneticNorthCoords.latitude
       })
       magneticNorthMarker.current = getMarkerGraphic(point)
       magneticNorthLayer.current.add(magneticNorthMarker.current)
@@ -255,16 +258,18 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
         )
       )
 
-      var myGeoMag2020 = geomag.field(point.latitude, point.longitude);
+      const model = geomag.model(declinationDate, { allowOutOfBoundsModel: true });
+      const modelInfo = model.point([point.latitude, point.longitude]);
+
       setDeclination(
         localizeNumberBySettingInfo(
-          myGeoMag2020.declination, 
+          modelInfo.decl, 
           {places: magneticDeclinationDecimal, digitSeparator: showSeparators}
         )
       )
       sethorizontalIntensity(
         localizeNumberBySettingInfo(
-          myGeoMag2020.horizontalIntensity, 
+          modelInfo.h, 
           {places: horizontalIntensityDecimal, digitSeparator: showSeparators}
         )
       )
@@ -298,26 +303,48 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
 
   return (
     <div className='jimu-widget-coordinates jimu-widget h-100' >
-    <div className="coordinates-widget-container m-2 d-flex justify-content-between surface-1">
-      <Button
-        icon
-        size='sm'
-        type='tertiary'
-        onClick={onLocateClick}
-        variant={locateActive ? 'contained' : 'text'}
-        color={locateActive ? 'primary' : 'default'}
-        title={locateBtnTips}
-        aria-label={locateBtnTips}
-        className='jimu-outline-inside coordinates-locate'
-      >
-        <LocatorOutlined />
-      </Button>
-      <div className='coordinates-info text-truncate' title={tip}>
-            {tip}
+      <div className="coordinates-widget-container m-2 d-flex justify-content-between surface-1">
+        <Button
+          icon
+          size='sm'
+          type='tertiary'
+          onClick={onLocateClick}
+          variant={locateActive ? 'contained' : 'text'}
+          color={locateActive ? 'primary' : 'default'}
+          title={locateBtnTips}
+          aria-label={locateBtnTips}
+          className='jimu-outline-inside coordinates-locate'
+        >
+          <LocatorOutlined />
+        </Button>
+        <div className='coordinates-info text-truncate' title={tip}>
+              {tip}
+        </div>
       </div>
-    </div>
 
-    
+      
+        <DatePicker
+          aria-describedby="date-picker-desc-id"
+          aria-label="DateTime picker label"
+          format="longDate"
+          isTimeLong={false}
+          onChange={onDateChange}
+          selectedDate={declinationDate}
+          showDoneButton={true}
+          showTimeInput={false}
+          strategy="absolute"
+        />
+        <div
+          id="date-picker-desc-id"
+          style={{
+            display: 'none'
+          }}
+        >
+          This is desc
+        </div>
+      
+   
+   
       {props.useMapWidgetIds && props.useMapWidgetIds.length === 1 && (
         <JimuMapViewComponent useMapWidgetId={props.useMapWidgetIds?.[0]} onActiveViewChange={activeViewChangeHandler} />
       )}
