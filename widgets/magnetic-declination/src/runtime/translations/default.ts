@@ -9,5 +9,6 @@ export default {
     latitude: 'Latitude',
     longitude: 'Longitude',
     horizontalIntensity: 'Horizontal intensity',
+    showMagneticNorth: 'Show magnetic north'
   }
   

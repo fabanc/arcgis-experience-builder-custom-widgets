@@ -18,6 +18,7 @@ import PictureMarkerSymbol from 'esri/symbols/PictureMarkerSymbol'
 import defaultMessages from './translations/default'
 import { LocatorOutlined } from 'jimu-icons/outlined/editor/locator'
 import CopyRow from './components/copy-row'
+import LabelRow from './components/label-row'
 
 
 
@@ -34,12 +35,15 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
   const [declination, setDeclination] = useState<string>('')
   const [horizontalIntensity, sethorizontalIntensity] = useState<string>('')
   const [currentJimuMapView, setCurrentJimuMapView] = useState(null)
+  const [showMagneticNorth, setShowMagneticNorth] = useState(false)
 
   // Locate is true if the user is getting the magnetic declination by clicking the map.
   // Locate is false if the user is getting the magnetic declination by moving the mouse over the map.
   const [locateActive, setLocateActive] = useState(false)
 
 
+  const magneticNorthLayer = useRef(null)
+  const magneticNorthMarker = useRef(null)
   const graphicsLayer = useRef(null)
   const markerGraphic = useRef(null)
   const moveListener = useRef(null)
@@ -58,9 +62,15 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
   const longitudeLabel = translate('longitude')
   const horizontalIntensityLabel = translate('horizontalIntensity')
   const magneticDeclinationLabel = translate('magneticDeclination')
+  const showMagneticNorthLabel = translate('showMagneticNorth')
 
 
   const locateBtnTips = locateActive ? disableClickTips : enableClickTips
+
+  useEffect(() => {
+    console.log(showMagneticNorth)
+    onShowMagneticNorth ()
+  },[showMagneticNorth])
 
   useEffect(() => {
     graphicsLayer.current = new GraphicsLayer({ listMode: 'hide' })
@@ -99,7 +109,6 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
        clickListener.current?.remove()
        moveListener.current?.remove()
        moveListener.current = view?.on('pointer-move', (event) => {
-         console.log('Pointer move event', event)
          const point = view.toMap({ x: event.x, y: event.y })
          displayOnClient(point)
        })
@@ -137,6 +146,10 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
       //   onMapClick(event, viewTypeIsThree ? threeDPoint : undefined)
       // })
     }
+  }
+
+  const onShowMagneticNorthChange = (evt) => {
+    setShowMagneticNorth(evt.target.checked)
   }
 
   const removeLayerAndMarker = () => {
@@ -193,6 +206,29 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
 
     displayOnClient(evt.mapPoint)
 
+  }
+
+  const onShowMagneticNorth = () => {
+    let map = currentJimuMapView?.view?.map
+    if (!showMagneticNorth) {
+      if (magneticNorthLayer.current != null){
+        map.remove(magneticNorthLayer.current)
+      }
+      
+      magneticNorthLayer.current = null
+      magneticNorthMarker.current = null
+    }
+    else{
+      const map = currentJimuMapView?.view?.map
+      magneticNorthLayer.current = new GraphicsLayer({ listMode: 'hide' })
+      map.add(magneticNorthLayer.current)
+      const point = new Point({
+        longitude: 139.384,
+        latitude: 85.772
+      })
+      magneticNorthMarker.current = getMarkerGraphic(point)
+      magneticNorthLayer.current.add(magneticNorthMarker.current)
+    }
   }
 
   // Method to display the coordinates and declination on the client side. Used regardless
@@ -280,15 +316,18 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
             {tip}
       </div>
     </div>
+
+    
       {props.useMapWidgetIds && props.useMapWidgetIds.length === 1 && (
         <JimuMapViewComponent useMapWidgetId={props.useMapWidgetIds?.[0]} onActiveViewChange={activeViewChangeHandler} />
       )}
-
-
+        <LabelRow label={showMagneticNorthLabel} checked={showMagneticNorth} onChange={onShowMagneticNorthChange}></LabelRow>
         <CopyRow label={latitudeLabel} copyableText={latitude}></CopyRow>
         <CopyRow label={longitudeLabel} copyableText={longitude}></CopyRow>
         <CopyRow label={magneticDeclinationLabel} copyableText={declination}></CopyRow>
         <CopyRow label={horizontalIntensityLabel} copyableText={horizontalIntensity}></CopyRow>
+
+        
     </div>
   )
 
