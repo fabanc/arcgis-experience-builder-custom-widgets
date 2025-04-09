@@ -34,6 +34,7 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
   const [latitude, setLatitude] = useState<string>('')
   const [longitude, setLongitude] = useState<string>('')
   const [declination, setDeclination] = useState<string>('')
+  const [inclination, setInclination] = useState<string>('')
   const [horizontalIntensity, sethorizontalIntensity] = useState<string>('')
   const [currentJimuMapView, setCurrentJimuMapView] = useState(null)
   const [showMagneticNorth, setShowMagneticNorth] = useState(false)
@@ -63,7 +64,10 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
   const longitudeLabel = translate('longitude')
   const horizontalIntensityLabel = translate('horizontalIntensity')
   const magneticDeclinationLabel = translate('magneticDeclination')
+  const magneticInclinationLabel = translate('magneticInclination')
   const showMagneticNorthLabel = translate('showMagneticNorth')
+  const dateOutofRangeLabel = translate('dateOutofRange')
+  
 
 
   const locateBtnTips = locateActive ? disableClickTips : enableClickTips
@@ -149,7 +153,7 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
 
     if (year < 2025 || year > 2029) {
       displayOnClient(null)
-      alert('Year out of range. Only 2025 to 2029 are supported.')
+      alert({dateOutofRangeLabel})
       return
     }
     setDeclinationDate(new Date(value))
@@ -242,6 +246,7 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
       setLatitude(null)
       setLongitude(null)      
       setDeclination(null)
+      setInclination(null)
       sethorizontalIntensity(null)
     }
     else{ 
@@ -267,6 +272,14 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
           {places: magneticDeclinationDecimal, digitSeparator: showSeparators}
         )
       )
+
+      setInclination(
+        localizeNumberBySettingInfo(
+          modelInfo.incl, 
+          {places: magneticDeclinationDecimal, digitSeparator: showSeparators}
+        )
+      )
+
       sethorizontalIntensity(
         localizeNumberBySettingInfo(
           modelInfo.h, 
@@ -352,9 +365,10 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
         <CopyRow label={latitudeLabel} copyableText={latitude}></CopyRow>
         <CopyRow label={longitudeLabel} copyableText={longitude}></CopyRow>
         <CopyRow label={magneticDeclinationLabel} copyableText={declination}></CopyRow>
+        <CopyRow label={magneticInclinationLabel} copyableText={inclination}></CopyRow>
         <CopyRow label={horizontalIntensityLabel} copyableText={horizontalIntensity}></CopyRow>
 
-        
+        <a href="https://github.com/fabanc/arcgis-experience-builder-custom-widgets/tree/main/widgets/magnetic-declination" target='_blank'>Help!</>        
     </div>
   )
 

@@ -6,9 +6,11 @@ export default {
     disableClickTips: 'Disable clicking the map to get the magnetic declination',
     computing: 'Computing...',
     magneticDeclination: 'Magnetic declination',
+    magneticInclination: 'Magnetic inclination',
     latitude: 'Latitude',
     longitude: 'Longitude',
     horizontalIntensity: 'Horizontal intensity',
-    showMagneticNorth: 'Show magnetic north'
+    showMagneticNorth: 'Show magnetic north',
+    dateOutofRange: 'Date out of range. Only 2025 to 2029 are supported.',
   }
   

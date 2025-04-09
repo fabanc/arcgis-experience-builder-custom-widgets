@@ -16,7 +16,7 @@ const Setting = (props: AllWidgetSettingProps<any>) => {
     useMapWidgetIds
   } = props
 
-  const { coordinateSystem, showSeparators, coordinateDecimal, magneticDeclinationDecimal, horizontalIntensityDecimal, altitudeDecimal, displayOrder } = propConfig
+  const { coordinateSystem, showSeparators, coordinateDecimal, magneticDeclinationDecimal, magneticInclinationDecimal, horizontalIntensityDecimal, altitudeDecimal, displayOrder } = propConfig
 
   // translate
   const translate = hooks.useTranslation(defaultMessages, jimuMessages, jimuCoreMessages)
@@ -30,6 +30,7 @@ const Setting = (props: AllWidgetSettingProps<any>) => {
   const displayOptions = translate('displayOptions')
   const coordinateDecimalLabel = translate('coordinateDecimal')
   const magneticDeclinationLabel = translate('magneticDeclinationDecimal')
+  const magneticInclinationLabel = translate('magneticInclinationDecimal')
   const horizontalIntensityLabel = translate('horizontalIntensityDecimal')
   const altitudeDecimalLabel = translate('altitudeDecimal')
   const showSeparatorsLabel = translate('showSeparators')
@@ -53,6 +54,10 @@ const Setting = (props: AllWidgetSettingProps<any>) => {
 
   const handleMagneticDeclinationDecimal = (valueInt: number) => {
     onPropertyChange('magneticDeclinationDecimal', valueInt)
+  } 
+
+  const handleMagneticInclinationDecimal = (valueInt: number) => {
+    onPropertyChange('magneticInclinationDecimal', valueInt)
   } 
 
   const handleHorizontalIntensityDecimal = (valueInt: number) => {
@@ -111,7 +116,19 @@ const Setting = (props: AllWidgetSettingProps<any>) => {
                     aria-label={magneticDeclinationLabel}
                     className='w-100'
                   />
-                </SettingRow>     
+                </SettingRow>
+                <SettingRow flow='wrap' label={horizontalIntensityLabel}>
+                <NumericInput
+                    size='sm'
+                    value={magneticInclinationDecimal}
+                    precision={0}
+                    min={0}
+                    max={10}
+                    onChange={handleMagneticInclinationDecimal}
+                    aria-label={magneticInclinationLabel}
+                    className='w-100'
+                  />
+                </SettingRow>                     
                 <SettingRow flow='wrap' label={horizontalIntensityLabel}>
                   <NumericInput
                     size='sm'

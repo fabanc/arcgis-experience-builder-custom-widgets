@@ -8,6 +8,7 @@ export default {
   displayOptions: 'Display options',
   coordinateDecimal: 'Number of decimal places for coordinates',
   magneticDeclinationDecimal: 'Number of decimal places for the magnetic declination',
+  magneticInlinationDecimal: 'Number of decimal places for the magnetic inclination',
   horizontalIntensityDecimal: 'Number of decimal places for the horizontal intensity',
   altitudeDecimal: 'Number of decimal places for altitude (3D)',
   showSeparators: 'Show thousand separators',
