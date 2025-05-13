@@ -12,5 +12,6 @@ export default {
     horizontalIntensity: 'Horizontal intensity',
     showMagneticNorth: 'Show magnetic north',
     dateOutofRange: 'Date out of range. Only 2025 to 2029 are supported.',
+    pickADeclinationDate: 'Pick calculation date of the magnetic field.',
   }
   

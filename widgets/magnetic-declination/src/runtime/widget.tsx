@@ -67,7 +67,7 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
   const magneticInclinationLabel = translate('magneticInclination')
   const showMagneticNorthLabel = translate('showMagneticNorth')
   const dateOutofRangeLabel = translate('dateOutofRange')
-  
+  const pickADeclinationDateLabel = translate('pickADeclinationDate')
 
 
   const locateBtnTips = locateActive ? disableClickTips : enableClickTips
@@ -335,10 +335,10 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
         </div>
       </div>
 
-      
+        <p className="text-truncate m-2">{pickADeclinationDateLabel}</p> 
         <DatePicker
           aria-describedby="date-picker-desc-id"
-          aria-label="DateTime picker label"
+          aria-label={pickADeclinationDateLabel}
           format="longDate"
           isTimeLong={false}
           onChange={onDateChange}
@@ -353,9 +353,9 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
             display: 'none'
           }}
         >
-          This is desc
+          
         </div>
-      
+
    
    
       {props.useMapWidgetIds && props.useMapWidgetIds.length === 1 && (
